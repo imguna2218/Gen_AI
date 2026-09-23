@@ -31,4 +31,9 @@ public class MessageController {
        return output;
 
     }
+
+    @PostMapping("/summarize")
+    public String summarize(@RequestBody String ticket) {
+        return ms.summarize(ticket);
+    }
 }

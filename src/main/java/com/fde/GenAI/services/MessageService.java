@@ -12,6 +12,9 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.ai.chat.client.ChatClient;
+
+
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +26,9 @@ public class MessageService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private ChatClient chatClient;
 
     public ResponseEntity<String> sendBySdk(PromptRequest prompt) {
         try {
@@ -101,5 +107,14 @@ public class MessageService {
                 .get()
                 .content.getFirst()
                 .text;
+    }
+
+    public String summarize(String ticket) {
+        String output = chatClient.prompt()
+                .user("Summarise this support ticket in two lines "+"\n\n"+ticket)
+                .call()
+                .content();
+
+        return output;
     }
 }
