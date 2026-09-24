@@ -33,7 +33,7 @@ public class MessageController {
 
     }
 
-    @PostMapping("/summarize")
+    @PostMapping("/chat")
     public String chat(@RequestBody String ticket) {
         return ms.chat(ticket);
     }
