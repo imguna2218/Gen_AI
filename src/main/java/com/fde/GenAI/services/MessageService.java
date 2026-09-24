@@ -1,6 +1,8 @@
 package com.fde.GenAI.services;
 
 import com.fde.GenAI.aitools.CalculatorTool;
+import com.fde.GenAI.aitools.CurrencyExchangeTool;
+import com.fde.GenAI.aitools.WeatherTool;
 import com.fde.GenAI.entities.AIResponseEntity;
 import com.fde.GenAI.entities.PromptRequest;
 import com.fde.GenAI.entities.SDKResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import org.springframework.ai.chat.client.ChatClient;
+import reactor.core.publisher.Flux;
 
 
 import java.awt.*;
@@ -40,15 +43,30 @@ public class MessageService {
     @Autowired
     private CalculatorTool calculatorTool;
 
+    @Autowired
+    private WeatherTool weatherTool;
+
+    @Autowired
+    private CurrencyExchangeTool currencyExchangeTool;
+
     private List<Message> history = new ArrayList<>();
 
-    private final String systemPrompt = """
-                You are a helpful AI assistant with access to external tools.
+//    private final String systemPrompt = """
+//                You are a helpful AI assistant with access to external tools.
+//
+//                Follow these rules:
+//                1. For Arithmetic calculations, ALWAYS use the calculator tool.
+//                2. Always use Calculator tool for even trivial calculations.
+//                3. For Current weather, ALWAYS use the currentWeather tool.
+//                4. For Currency exchange operations , use the currencyExchangeTool
+//                5. You may call multiple tools when solving a multi-step request
+//                6. After receiving the tool results, explain the answers naturally
+//                7. Never Invent current weather or exchange-rate information
+//    """;
 
-                Follow these rules:
-                1. For Arithmetic calculations, ALWAYS use the calculator tool.
-                2. After recieving tool results , respond to the user in Natural language.
-    """;
+    private final String systemPrompt = """
+            You are a funny chat bot, you reponsd to the user either funny or roast them in case if they are angry.  
+            """;
 
 
     public ResponseEntity<String> sendBySdk(PromptRequest prompt) {
@@ -130,18 +148,24 @@ public class MessageService {
                 .text;
     }
 
-    public String chat(String message) {
+    public Flux<String> chat(String message) {
 
         history.add(new UserMessage(message));
+        StringBuilder sb = new StringBuilder();
 
-        String output = chatClient.prompt()
+        Flux<String> output = chatClient.prompt()
                 .system(systemPrompt)
                 .messages(history)
-                .tools(calculatorTool)
-                .call()
-                .content();
+                .user(message)
+                //.tools(calculatorTool, weatherTool, currencyExchangeTool)
+                .stream()
+                .content()
+                .doOnNext(sb::append)
+                .doOnComplete(() -> {
+                    history.add(new AssistantMessage(sb.toString()));
+                });
 
-        history.add(new AssistantMessage(output));
+        // history.add(new AssistantMessage(output));
         return output;
     }
 }

@@ -6,6 +6,7 @@ import com.google.genai.gaos.models.interactions.Interaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -34,7 +35,7 @@ public class MessageController {
     }
 
     @PostMapping("/chat")
-    public String chat(@RequestBody String ticket) {
+    public Flux<String> chat(@RequestBody String ticket) {
         return ms.chat(ticket);
     }
 }
