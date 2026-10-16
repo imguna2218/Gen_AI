@@ -35,3 +35,7 @@ build/
 src/main/resources/application-local.properties
 
 /generated-sites
+
+src/main/resources/onnx/
+
+src/main/resources/DATA/

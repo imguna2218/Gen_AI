@@ -1,5 +1,6 @@
 package com.fde.GenAI;
 
+import com.openai.models.embeddings.EmbeddingModel;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,5 +24,6 @@ public class GenAiApplication {
 
 		return new RestTemplate(factory);
 	}
+
 
 }
